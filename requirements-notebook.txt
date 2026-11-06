@@ -1,0 +1,7 @@
+# Dependencias completas para reentrenar con el notebook
+-r requirements.txt
+scikit-learn>=1.5
+seaborn>=0.13
+imagehash>=4.3
+jupyter>=1.0
+pypdfium2>=4.0

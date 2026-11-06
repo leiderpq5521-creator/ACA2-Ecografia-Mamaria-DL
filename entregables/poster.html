@@ -1,0 +1,65 @@
+<!doctype html><html lang=es><head><meta charset=utf-8><title>Póster ACA 2 – Ecografía mamaria con Deep Learning</title><style>.wrap{zoom:0.94}
+@page{size:297mm 420mm;margin:0}
+*{box-sizing:border-box}body{margin:0;width:297mm;height:420mm;font-family:'Segoe UI','DejaVu Sans',sans-serif;color:#1d2433;background:#f4f6fa;font-size:9.1pt;overflow:hidden}
+header{background:linear-gradient(135deg,#1d2f4f,#2E86AB);color:#fff;padding:6mm 10mm 4.5mm;display:flex;gap:6mm;align-items:center}header .tit{flex:1}header .lk a{color:#fff;text-decoration:underline}header .lk{width:78mm;background:#D1495B;border-radius:2.5mm;padding:2.5mm 3.5mm;font-size:8pt;line-height:1.35;word-break:break-all}
+h1{margin:0;font-size:20pt;line-height:1.12}header p{margin:2mm 0 0;font-size:9pt;opacity:.93}
+.wrap{padding:4mm 10mm}.row{display:flex;gap:4mm;margin-bottom:3mm}.mb{margin-bottom:3mm}
+.card{background:#fff;border-radius:3mm;padding:2.8mm 3.8mm;box-shadow:0 1px 3px #0002;flex:1;min-width:0}
+.card h2{margin:0 0 2mm;font-size:11.5pt;color:#1d2f4f;border-left:2mm solid #D1495B;padding-left:2.5mm}
+.card p,.card li{margin:0 0 1.2mm;line-height:1.33}ul{margin:0;padding-left:4.5mm}
+.steps{display:flex;gap:2.5mm}.step{flex:1;background:#f7f9fc;border-top:2mm solid #2E86AB;border-radius:2mm;padding:2.2mm;font-size:8.3pt;line-height:1.3}
+.step>b:first-child{display:block;color:#D1495B;font-size:9pt;margin-bottom:.8mm}
+.kpis{display:flex;gap:2.5mm;margin-bottom:2.5mm}.kpi{flex:1;background:#1d2f4f;color:#fff;border-radius:2mm;padding:2mm;text-align:center}
+.kpi span{display:block;font-size:17pt;font-weight:bold;color:#ffd166}.kpi small{font-size:7.6pt}
+img{max-width:100%;display:block;margin:0 auto}
+table{border-collapse:collapse;width:100%;font-size:8.3pt}th,td{padding:1.1mm 1.4mm;border-bottom:1px solid #dde3ec;text-align:center}
+th{background:#eef2f8;color:#1d2f4f}td:first-child,th:first-child{text-align:left}tr.sel td{font-weight:bold;background:#fff4d6}
+.links{background:#D1495B;color:#fff}.links h2{color:#fff;border-color:#fff}.links a,.links p{color:#fff;word-break:break-all}
+.ref{font-size:6.9pt;line-height:1.22;padding-left:5mm;text-indent:-5mm;margin:0 0 1mm}
+.note{font-size:7.8pt;color:#555}
+</style></head><body>
+<header><div class=tit><h1>Del ML clásico al Deep Learning: clasificación de ecografías mamarias con redes neuronales y Streamlit</h1>
+<p>ACA N° 2 · Aprendizaje Automático · Especialización en Inteligencia Artificial · CUN – Escuela de Ingeniería · Docente: Hamilton Rivera Flor<br>
+<b>Integrantes:</b> Kevin David Guzman Payares · Leider Antonio Pacheco Quinto · Joaquin Pablo Redondo Tapias · Jose Luis Ruiz Ospino</p></div>
+<div class=lk><b>App:</b> <i>(enlace de Streamlit Cloud – por publicar)</i><br><b>Video:</b> <i>(enlace del video – por publicar)</i><br><b>Código:</b> <i>(enlace del repositorio GitHub – por publicar)</i></div></header>
+<div class=wrap>
+<div class=row>
+<div class=card><h2>Objetivo general</h2><p>Entrenar y ajustar redes neuronales profundas (CNN y Transformer) que clasifiquen ecografías mamarias en <b>normal, benigno o maligno</b>, priorizando la sensibilidad para la clase maligna, y desplegarlas en una app Streamlit con explicación visual (Grad-CAM).</p></div>
+<div class=card><h2>Situación problema</h2><p><i>¿Cómo aprovechar redes neuronales o modelos de Hugging Face para extraer patrones complejos en datos de salud y llevarlos a una interfaz interactiva?</i></p><p>En el ACA 1 la regresión logística clasificó tumores con 30 medidas <i>ya extraídas</i> (WDBC). Ahora la red aprende <b>directamente de la imagen</b> de ultrasonido, el primer examen clínico.</p></div>
+<div class=card><h2>Dataset: BUSI (Al-Dhabyani et al., 2020)</h2><ul>
+<li>780 ecografías de 600 mujeres (Hospital Baheya, El Cairo) con máscara de la lesión: 56 % benignas · 27 % malignas · 17 % normales.</li>
+<li><b>Depuración:</b> 18 imágenes con la misma ecografía en dos clases y 38 duplicados excluidos → 724 útiles: train 507 · val 108 · test 109 (70/15/15, sin fuga).</li></ul></div>
+</div>
+<div class="card mb"><h2>Ruta metodológica</h2><div class=steps>
+<div class=step><b>1 · Exploración y SQL</b>Inventario en <b>SQLite</b> (tamaño, intensidad, área de lesión, MD5, pHash). Consultas de balance y duplicados.</div>
+<div class=step><b>2 · Pipeline</b>pHash para conflictos y casi-duplicados; StratifiedGroupKFold; 224×224, normalización ImageNet; <b>aumento de datos</b> (recorte, volteo, rotación ±15°, brillo/contraste); pérdida ponderada.</div>
+<div class=step><b>3 · Modelado</b>CNN desde cero · <b>EfficientNet-B0</b> (<i>transfer learning</i> en 2 fases) · <b>DeiT-Small</b> (ViT, Hugging Face). AdamW, early stopping por F1 macro.</div>
+<div class=step><b>4 · Evaluación</b>Curvas loss/accuracy, F1 macro, recall maligno, matriz 3×3, ROC OvR, IC 95 % bootstrap, Grad-CAM vs. máscara.</div>
+<div class=step><b>5 · Despliegue</b>App Streamlit: imagen + Grad-CAM, lotes, historial y consultas SQL, desempeño.</div></div></div>
+<div class="card mb"><h2>Arquitectura seleccionada para la app: EfficientNet-B0 con <i>transfer learning</i></h2>
+<img src="file:///C:/Users/CSB72053754/Documents/ESPECIALIZACION%20INTELIGENCIA%20ARTIFICIAL/APREDIZAJE%20AUTONOMO/ACA2/PROYECTO_ACA2_Cancer_Mama_DL/figuras/11_arquitectura_efficientnet.png" style="max-height:44mm">
+<p class=note style="margin:0">Fase 1: sólo la cabeza nueva (backbone congelado). Fase 2: <i>fine-tuning</i> de los 4 últimos bloques MBConv + conv_head con LR 5× menor. Con ~500 imágenes, reutilizar filtros aprendidos en ImageNet evita el sobreajuste de una red entrenada desde cero; es ligera (16 MB, inferencia en CPU) y permite Grad-CAM.</p></div>
+<div class=row>
+<div class=card style="flex:1"><h2>Resultados en prueba (n = 109, imágenes nunca vistas)</h2>
+<div class=kpis><div class=kpi><span>61,5 %</span><small>Accuracy</small></div><div class=kpi><span>0,613</span><small>F1 macro</small></div>
+<div class=kpi><span>58,1 %</span><small>Recall maligno</small></div><div class=kpi><span>0,784</span><small>ROC-AUC (OvR)</small></div></div>
+<table><tr><th>Modelo</th><th>Parám. (M)</th><th>Accuracy</th><th>F1 macro</th><th>ROC-AUC</th><th>Recall mal.</th></tr><tr><td>CNN desde cero</td><td>1,2</td><td>0,284</td><td>0,148</td><td>0,562</td><td>1,000</td></tr><tr class=sel><td>EfficientNet-B0</td><td>4,0</td><td>0,615</td><td>0,613</td><td>0,784</td><td>0,581</td></tr><tr><td>DeiT-Small (ViT)</td><td>21,7</td><td>0,661</td><td>0,550</td><td>0,888</td><td>0,129</td></tr></table>
+<p class=note style="margin-top:1.5mm">IC 95 % (bootstrap) de EfficientNet-B0: accuracy 0,523–0,706 · F1 macro 0,507–0,705 · recall maligno 0,393–0,759. Por clase (F1): normal 0,667 · benigno 0,679 · maligno 0,493.</p></div>
+<div class=card><h2>Vista previa de la app Streamlit</h2><p>(captura pendiente)</p></div>
+</div>
+<div class="card mb"><h2>EfficientNet-B0: curvas de entrenamiento/validación y matriz de confusión</h2>
+<img src="file:///C:/Users/CSB72053754/Documents/ESPECIALIZACION%20INTELIGENCIA%20ARTIFICIAL/APREDIZAJE%20AUTONOMO/ACA2/PROYECTO_ACA2_Cancer_Mama_DL/figuras/13_poster_effnet.png" style="max-height:41mm"></div>
+<div class=row>
+<div class=card style="flex:1.3"><h2>Interpretabilidad: Grad-CAM</h2><img src="file:///C:/Users/CSB72053754/Documents/ESPECIALIZACION%20INTELIGENCIA%20ARTIFICIAL/APREDIZAJE%20AUTONOMO/ACA2/PROYECTO_ACA2_Cancer_Mama_DL/figuras/09_gradcam.png" style="max-height:40mm">
+<p class=note>En las 91 lesiones de prueba, 10,8 % del mapa de calor cae dentro de la lesión segmentada, que ocupa en promedio 8,5 % de la imagen: <b>1,3×</b> lo esperado si la red mirara al azar.</p></div>
+<div class=card style="flex:1"><h2>Conclusiones</h2><ul><li>Conclusión de prueba uno con texto suficientemente largo para ocupar una línea completa del póster.</li><li>Conclusión dos de prueba con texto largo también para ver el espacio.</li><li>Tres.</li><li>Cuatro, más texto de relleno para ver el alto.</li></ul></div>
+</div>
+<div class="card mb" style="columns:2;column-gap:6mm"><h2 style="column-span:all">Referencias (APA 7)</h2>
+<p class=ref>Al-Dhabyani, W., Gomaa, M., Khaled, H., &amp; Fahmy, A. (2020). Dataset of breast ultrasound images. <i>Data in Brief, 28</i>, 104863. https://doi.org/10.1016/j.dib.2019.104863</p>
+<p class=ref>Selvaraju, R. R., Cogswell, M., Das, A., Vedantam, R., Parikh, D., &amp; Batra, D. (2017). Grad-CAM: Visual explanations from deep networks via gradient-based localization. <i>Proceedings of the IEEE ICCV</i>, 618–626.</p>
+<p class=ref>Tan, M., &amp; Le, Q. (2019). EfficientNet: Rethinking model scaling for convolutional neural networks. <i>Proceedings of ICML</i>, 6105–6114.</p>
+<p class=ref>Touvron, H., Cord, M., Douze, M., Massa, F., Sablayrolles, A., &amp; Jégou, H. (2021). Training data-efficient image transformers &amp; distillation through attention. <i>Proceedings of ICML</i>, 10347–10357.</p>
+<p class=ref>Wolf, T., et al. (2020). Transformers: State-of-the-art natural language processing. <i>Proceedings of EMNLP: System Demonstrations</i>, 38–45.</p>
+</div>
+
+</div></body></html>

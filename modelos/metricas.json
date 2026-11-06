@@ -1,0 +1,308 @@
+{
+  "modelo_app": "EfficientNet-B0",
+  "arquitectura_app": "efficientnet_b0",
+  "pesos_app": "efficientnet_b0_busi.pt",
+  "clases": [
+    "normal",
+    "benigno",
+    "maligno"
+  ],
+  "img_size": 224,
+  "modelo_mejor_val": "EfficientNet-B0",
+  "n": {
+    "total_original": 780,
+    "excluidas": 56,
+    "test": 109,
+    "train": 507,
+    "val": 108
+  },
+  "depuracion": {
+    "duplicado visual": 38,
+    "conflicto de etiqueta": 18
+  },
+  "resultados_test": {
+    "CNN desde cero": {
+      "accuracy": 0.2844,
+      "f1_macro": 0.1476,
+      "roc_auc_ovr": 0.5616,
+      "recall_maligno": 1.0,
+      "por_clase": {
+        "normal": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "soporte": 18
+        },
+        "benigno": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "soporte": 60
+        },
+        "maligno": {
+          "precision": 0.2844,
+          "recall": 1.0,
+          "f1": 0.4429,
+          "soporte": 31
+        }
+      },
+      "matriz_confusion": [
+        [
+          0,
+          0,
+          18
+        ],
+        [
+          0,
+          0,
+          60
+        ],
+        [
+          0,
+          0,
+          31
+        ]
+      ],
+      "ic95": {
+        "accuracy": [
+          0.1927,
+          0.3761
+        ],
+        "f1_macro": [
+          0.1077,
+          0.1822
+        ],
+        "roc_auc_ovr": [
+          0.4759,
+          0.6488
+        ],
+        "recall_maligno": [
+          1.0,
+          1.0
+        ]
+      },
+      "f1_macro_val": 0.1449,
+      "parametros": 1173987,
+      "epocas": 1,
+      "min_entrenamiento": 1.1122
+    },
+    "EfficientNet-B0": {
+      "accuracy": 0.8165,
+      "f1_macro": 0.801,
+      "roc_auc_ovr": 0.935,
+      "recall_maligno": 0.9355,
+      "por_clase": {
+        "normal": {
+          "precision": 0.8125,
+          "recall": 0.7222,
+          "f1": 0.7647,
+          "soporte": 18
+        },
+        "benigno": {
+          "precision": 0.94,
+          "recall": 0.7833,
+          "f1": 0.8545,
+          "soporte": 60
+        },
+        "maligno": {
+          "precision": 0.6744,
+          "recall": 0.9355,
+          "f1": 0.7838,
+          "soporte": 31
+        }
+      },
+      "matriz_confusion": [
+        [
+          13,
+          1,
+          4
+        ],
+        [
+          3,
+          47,
+          10
+        ],
+        [
+          0,
+          2,
+          29
+        ]
+      ],
+      "ic95": {
+        "accuracy": [
+          0.7431,
+          0.8807
+        ],
+        "f1_macro": [
+          0.7123,
+          0.8713
+        ],
+        "roc_auc_ovr": [
+          0.8872,
+          0.9688
+        ],
+        "recall_maligno": [
+          0.8378,
+          1.0
+        ]
+      },
+      "f1_macro_val": 0.6921,
+      "parametros": 4011391,
+      "epocas": 2,
+      "min_entrenamiento": 1.0381
+    },
+    "DeiT-Small (ViT)": {
+      "accuracy": 0.6606,
+      "f1_macro": 0.5496,
+      "roc_auc_ovr": 0.8878,
+      "recall_maligno": 0.129,
+      "por_clase": {
+        "normal": {
+          "precision": 0.4722,
+          "recall": 0.9444,
+          "f1": 0.6296,
+          "soporte": 18
+        },
+        "benigno": {
+          "precision": 0.7391,
+          "recall": 0.85,
+          "f1": 0.7907,
+          "soporte": 60
+        },
+        "maligno": {
+          "precision": 1.0,
+          "recall": 0.129,
+          "f1": 0.2286,
+          "soporte": 31
+        }
+      },
+      "matriz_confusion": [
+        [
+          17,
+          1,
+          0
+        ],
+        [
+          9,
+          51,
+          0
+        ],
+        [
+          10,
+          17,
+          4
+        ]
+      ],
+      "ic95": {
+        "accuracy": [
+          0.5596,
+          0.7523
+        ],
+        "f1_macro": [
+          0.4553,
+          0.6434
+        ],
+        "roc_auc_ovr": [
+          0.8358,
+          0.9326
+        ],
+        "recall_maligno": [
+          0.0278,
+          0.25
+        ]
+      },
+      "f1_macro_val": 0.4983,
+      "parametros": 21666819,
+      "epocas": 1,
+      "min_entrenamiento": 1.9121
+    }
+  },
+  "gradcam": {
+    "energia_media_en_lesion": 0.1921,
+    "area_media_lesion": 0.0851,
+    "razon": 2.2577,
+    "n": 91
+  },
+  "gradcam_por_modelo": {
+    "EfficientNet-B0": {
+      "energia_media_en_lesion": 0.1921,
+      "area_media_lesion": 0.0851,
+      "razon": 2.2577,
+      "n": 91
+    },
+    "DeiT-Small (ViT)": {
+      "energia_media_en_lesion": 0.1566,
+      "area_media_lesion": 0.0851,
+      "razon": 1.8399,
+      "n": 91
+    }
+  },
+  "puente_wdbc": {
+    "Regresión logística (ACA 1)": {
+      "accuracy": 0.9825,
+      "f1": 0.9762,
+      "roc_auc": 0.996
+    },
+    "MLP 30-64-32-1 (ACA 2)": {
+      "accuracy": 0.9912,
+      "f1": 0.988,
+      "roc_auc": 0.998
+    }
+  },
+  "historial": {
+    "CNN desde cero": [
+      {
+        "epoca": 1,
+        "fase": "cnn",
+        "loss_train": 1.1495,
+        "acc_train": 0.3964,
+        "f1_train": 0.3624,
+        "loss_val": 1.5363,
+        "acc_val": 0.2778,
+        "f1_val": 0.1449,
+        "lr": 0.001,
+        "seg": 66.7291
+      }
+    ],
+    "EfficientNet-B0": [
+      {
+        "epoca": 1,
+        "fase": "effnet-f1",
+        "loss_train": 1.0648,
+        "acc_train": 0.4793,
+        "f1_train": 0.4418,
+        "loss_val": 1.0658,
+        "acc_val": 0.3796,
+        "f1_val": 0.3483,
+        "lr": 0.001,
+        "seg": 22.3675
+      },
+      {
+        "epoca": 2,
+        "fase": "effnet-f2",
+        "loss_train": 0.8899,
+        "acc_train": 0.6252,
+        "f1_train": 0.6116,
+        "loss_val": 0.7999,
+        "acc_val": 0.7222,
+        "f1_val": 0.6921,
+        "lr": 0.0002,
+        "seg": 39.919
+      }
+    ],
+    "DeiT-Small (ViT)": [
+      {
+        "epoca": 1,
+        "fase": "vit",
+        "loss_train": 1.0637,
+        "acc_train": 0.432,
+        "f1_train": 0.3986,
+        "loss_val": 0.8596,
+        "acc_val": 0.5833,
+        "f1_val": 0.4983,
+        "lr": 0.0001,
+        "seg": 114.7247
+      }
+    ]
+  }
+}
