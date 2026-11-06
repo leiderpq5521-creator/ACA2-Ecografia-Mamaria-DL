@@ -37,12 +37,17 @@ DESCRIPCION_ARQ = {
 
 
 # ───────────────────────────── Carga de artefactos ──────────────────────────────
+def _version(ruta) -> int:
+    """Huella del archivo: si se actualiza (p. ej. un nuevo push a Streamlit Cloud), la caché se invalida."""
+    return ruta.stat().st_mtime_ns ^ ruta.stat().st_size
+
+
 @st.cache_data
-def cargar_metricas():
+def cargar_metricas(_version_archivo: int):
     return json.loads((DIR_MODELOS / "metricas.json").read_text(encoding="utf-8"))
 
 
-met = cargar_metricas()
+met = cargar_metricas(_version(DIR_MODELOS / "metricas.json"))
 
 
 # Redes disponibles en la app: la elegida por validación va primero (por defecto)
@@ -53,7 +58,7 @@ OPCIONES = sorted((n for n, (_, f) in ARQ_APP.items() if (DIR_MODELOS / f).exist
 
 
 @st.cache_resource(show_spinner="Cargando la red neuronal…")
-def cargar_modelo(nombre: str):
+def cargar_modelo(nombre: str, version_pesos: int):
     arq, pesos = ARQ_APP[nombre]
     modelo = cargar_para_inferencia(DIR_MODELOS / pesos, arq)
     return modelo, GradCAM(modelo, capa_objetivo(modelo))
@@ -129,7 +134,7 @@ with st.sidebar:
                    "Alternativa: Grad-CAM más localizado") for n in OPCIONES],
         help="Ambas redes se entrenaron con los mismos datos. El ViT es más preciso; EfficientNet-B0 concentra mejor "
              "su mapa Grad-CAM sobre la lesión.")
-    modelo, gradcam = cargar_modelo(modelo_sel)
+    modelo, gradcam = cargar_modelo(modelo_sel, _version(DIR_MODELOS / ARQ_APP[modelo_sel][1]))
     res = met["resultados_test"][modelo_sel]
     st.markdown(f"**Arquitectura:** {DESCRIPCION_ARQ.get(ARQ_APP[modelo_sel][0], modelo_sel)}  \n"
                 f"**Clases:** normal · benigno · maligno  \n"
