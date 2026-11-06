@@ -1,1 +1,8 @@
-["Conclusión de prueba uno con texto suficientemente largo para ocupar una línea completa del póster.","Conclusión dos de prueba con texto largo también para ver el espacio.","Tres.","Cuatro, más texto de relleno para ver el alto."]
+[
+ "<b>El transfer learning es decisivo con pocos datos:</b> con ~500 imágenes de entrenamiento, la CNN entrenada desde cero se queda en F1 macro 0,55, mientras que las redes preentrenadas en ImageNet llegan a 0,84 (EfficientNet-B0) y 0,92 (DeiT-Small).",
+ "<b>El Vision Transformer fue el mejor modelo</b> (elegido por validación): en prueba alcanza accuracy 92,7 %, F1 macro 0,924 (IC 95 %: 0,87–0,97), ROC-AUC 0,979 y detecta 28 de 31 tumores malignos (recall 90,3 %).",
+ "<b>La calidad de datos cambia el resultado:</b> se excluyeron 56 imágenes de BUSI (18 con la misma ecografía en dos clases) y se agruparon las casi idénticas para que ninguna quedara a la vez en entrenamiento y prueba; sin esto las métricas estarían infladas.",
+ "<b>Las redes miran la lesión:</b> el mapa Grad-CAM concentra 2,8× (EfficientNet) y 1,8× (ViT) más energía dentro de la lesión de lo esperado al azar; la atención del Transformer es más global y la CNN, más localizada.",
+ "<b>Puente con el ACA 1:</b> con 30 variables tabulares ya extraídas, una MLP y la regresión logística empatan (F1 0,988 vs. 0,976); el Deep Learning aporta su mayor valor cuando aprende directamente de la imagen.",
+ "<b>Limitaciones:</b> un solo hospital, 109 imágenes de prueba y 3 tumores malignos no detectados: es una herramienta de apoyo educativo que requiere validación externa antes de cualquier uso clínico."
+]

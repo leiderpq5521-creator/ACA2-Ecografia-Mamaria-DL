@@ -9,8 +9,19 @@
 
 **Docente:** Hamilton Rivera Flor · **Pilar:** Salud · **Dataset:** Breast Ultrasound Images – BUSI (Al-Dhabyani et al., 2020)
 
+**App en línea:** https://aca2-ecografia-mamaria-dl-26xgtzbp9fp9bjsii42gxm.streamlit.app/
+
 ## Resultados (conjunto de prueba, 109 imágenes nunca vistas)
-<!-- RESULTADOS -->
+| Modelo | Parámetros | Accuracy | F1 macro | ROC-AUC (OvR) | Recall maligno |
+|---|---|---|---|---|---|
+| CNN desde cero | 1,2 M | 0,569 | 0,554 | 0,746 | 0,581 |
+| EfficientNet-B0 (*transfer learning*) | 4,0 M | 0,872 | 0,844 | 0,976 | 0,806 |
+| **DeiT-Small – ViT de Hugging Face** (modelo de la app) | 21,7 M | **0,927** | **0,924** | **0,979** | **0,903** |
+
+- El modelo de la app se eligió por el mejor **F1 macro en validación** (ViT 0,840 vs. EfficientNet 0,826). IC 95 % (bootstrap) del ViT en prueba: F1 macro 0,87–0,97; recall maligno 0,79–1,00.
+- El ViT detecta 28 de 31 tumores malignos y no clasifica ninguna imagen normal como maligna. Acierta los 9 ejemplos de la app.
+- Grad-CAM: la energía del mapa dentro de la lesión es 2,8× (EfficientNet-B0) y 1,8× (ViT) lo esperado al azar. La app permite alternar entre ambas redes.
+- Puente con el ACA 1 (WDBC tabular): MLP F1 0,988 vs. regresión logística 0,976 (empate práctico).
 
 ## Contenido
 | Ruta | Qué es |

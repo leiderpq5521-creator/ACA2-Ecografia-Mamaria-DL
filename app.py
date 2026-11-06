@@ -45,10 +45,17 @@ def cargar_metricas():
 met = cargar_metricas()
 
 
+# Redes disponibles en la app: la elegida por validación va primero (por defecto)
+ARQ_APP = {"DeiT-Small (ViT)": ("deit_small", "deit_small_busi.pt"),
+           "EfficientNet-B0": ("efficientnet_b0", "efficientnet_b0_busi.pt")}
+OPCIONES = sorted((n for n, (_, f) in ARQ_APP.items() if (DIR_MODELOS / f).exists()),
+                  key=lambda n: n != met["modelo_app"])
+
+
 @st.cache_resource(show_spinner="Cargando la red neuronal…")
-def cargar_modelo():
-    torch.set_num_threads(max(1, torch.get_num_threads()))
-    modelo = cargar_para_inferencia(DIR_MODELOS / met["pesos_app"], met["arquitectura_app"])
+def cargar_modelo(nombre: str):
+    arq, pesos = ARQ_APP[nombre]
+    modelo = cargar_para_inferencia(DIR_MODELOS / pesos, arq)
     return modelo, GradCAM(modelo, capa_objetivo(modelo))
 
 
@@ -57,9 +64,7 @@ def conexion():
     return db.conectar(RUTA_DB)
 
 
-modelo, gradcam = cargar_modelo()
 con = conexion()
-res = met["resultados_test"][met["modelo_app"]]
 
 
 # ───────────────────────────── Funciones auxiliares ─────────────────────────────
@@ -77,10 +82,10 @@ def decision(probs: np.ndarray, umbral: float) -> tuple[str, bool]:
 
 def registrar(origen: str, contenido: bytes, clase: str, probs) -> None:
     """Guarda la predicción en SQLite una sola vez por imagen y sesión."""
-    clave = hashlib.md5(contenido).hexdigest()
+    clave = hashlib.md5(contenido).hexdigest() + modelo_sel
     vistos = st.session_state.setdefault("registradas", set())
     if clave not in vistos:
-        db.registrar_prediccion(con, origen, met["modelo_app"], clase, probs)
+        db.registrar_prediccion(con, origen, modelo_sel, clase, probs)
         vistos.add(clave)
 
 
@@ -102,14 +107,21 @@ def grafico_probs(probs: np.ndarray, umbral: float):
 # ───────────────────────────── Encabezado y barra lateral ───────────────────────
 st.title("🩺 Clasificación de ecografías mamarias con Deep Learning")
 st.caption("ACA N° 2 · Aprendizaje Automático · CUN – Especialización en Inteligencia Artificial · "
-           f"Red neuronal **{met['modelo_app']}** ajustada con *Breast Ultrasound Images (BUSI)*")
+           "Redes neuronales (Vision Transformer y CNN) ajustadas con *Breast Ultrasound Images (BUSI)*")
 st.warning("**Herramienta educativa.** No es un dispositivo médico y no sustituye el criterio ni el diagnóstico de un "
            "profesional de la salud.", icon="⚠️")
 
 with st.sidebar:
     st.header("Modelo")
-    st.markdown(f"**Arquitectura:** {DESCRIPCION_ARQ.get(met['arquitectura_app'], met['modelo_app'])}  \n"
-                f"*Elegida por el mejor F1 macro en validación*  \n"
+    modelo_sel = st.radio(
+        "Red neuronal", OPCIONES,
+        captions=[("Recomendada: mejor F1 en validación" if n == met["modelo_app"] else
+                   "Alternativa: Grad-CAM más localizado") for n in OPCIONES],
+        help="Ambas redes se entrenaron con los mismos datos. El ViT es más preciso; EfficientNet-B0 concentra mejor "
+             "su mapa Grad-CAM sobre la lesión.")
+    modelo, gradcam = cargar_modelo(modelo_sel)
+    res = met["resultados_test"][modelo_sel]
+    st.markdown(f"**Arquitectura:** {DESCRIPCION_ARQ.get(ARQ_APP[modelo_sel][0], modelo_sel)}  \n"
                 f"**Clases:** normal · benigno · maligno  \n"
                 f"**Entrenamiento:** {met['n']['train']} imágenes  \n**Validación:** {met['n']['val']}  \n"
                 f"**Prueba:** {met['n']['test']}")
@@ -196,13 +208,15 @@ with tab1:
             if conf < 0.6:
                 st.info("La confianza es baja (< 60 %): el modelo duda entre clases. Interpreta con cautela.")
             st.pyplot(grafico_probs(probs, umbral), clear_figure=True)
+            gcm = met.get("gradcam_por_modelo", {}).get(modelo_sel, met["gradcam"])
             with st.expander("¿Cómo leer el mapa Grad-CAM?"):
                 st.markdown("Grad-CAM resalta las regiones de la imagen cuyo cambio más alteraría la puntuación de la "
                             "clase predicha. Si el calor está **sobre la lesión**, la red se basa en la anatomía "
                             "relevante; si está en bordes, textos o marcas del ecógrafo, desconfía del resultado. "
-                            f"En prueba, {met['gradcam']['energia_media_en_lesion']:.0%} del mapa cayó dentro de la "
-                            f"lesión, que ocupa en promedio {met['gradcam']['area_media_lesion']:.0%} de la imagen "
-                            f"({met['gradcam']['razon']:.1f}× lo esperado al azar).")
+                            f"En prueba, con {modelo_sel}, {gcm['energia_media_en_lesion']:.0%} del mapa cayó dentro de la "
+                            f"lesión, que ocupa en promedio {gcm['area_media_lesion']:.0%} de la imagen "
+                            f"({gcm['razon']:.1f}× lo esperado al azar). En el Vision Transformer el mapa suele ser más "
+                            "difuso (la atención es global); EfficientNet-B0 lo concentra más sobre la lesión.")
 
 # ───────────────────────────── 2. Lotes ─────────────────────────────────────────
 with tab2:
@@ -297,7 +311,7 @@ with tab4:
     st.dataframe(comp.style.format("{:.3f}").format("{:.1f}", subset=["Parámetros (M)"]).format("{:.0f}", subset=["Épocas"])
                  .background_gradient(subset=["F1 macro", "Recall maligno"], cmap="Greens"), width="stretch")
 
-    st.markdown(f"**Métricas por clase – {met['modelo_app']}**")
+    st.markdown(f"**Métricas por clase – {modelo_sel}**")
     st.dataframe(pd.DataFrame(res["por_clase"]).T.style.format({"precision": "{:.3f}", "recall": "{:.3f}", "f1": "{:.3f}"}),
                  width="stretch")
     for archivo, titulo in [("05_curvas_entrenamiento.png", "Curvas de entrenamiento y validación"),

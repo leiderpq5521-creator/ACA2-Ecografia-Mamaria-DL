@@ -1,6 +1,7 @@
 """Genera el póster (A3 vertical) a partir de modelos/metricas.json y lo exporta a PDF con Edge/Chrome headless.
 
 Uso:  python entregables/generar_poster.py [--app URL] [--video URL] [--repo URL]
+Los enlaces pasados se guardan en entregables/enlace_*.txt y se reutilizan en las siguientes ejecuciones.
 """
 import argparse
 import json
@@ -10,12 +11,21 @@ from pathlib import Path
 
 BASE = Path(__file__).resolve().parent.parent
 OUT = BASE / "entregables"
+PENDIENTE = {"app": "(enlace de Streamlit Cloud – por publicar)", "video": "(enlace del video – por publicar)",
+             "repo": "(enlace del repositorio GitHub – por publicar)"}
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--app", default="(enlace de Streamlit Cloud – por publicar)")
-ap.add_argument("--video", default="(enlace del video – por publicar)")
-ap.add_argument("--repo", default="(enlace del repositorio GitHub – por publicar)")
+for k in PENDIENTE:
+    ap.add_argument(f"--{k}")
 args = ap.parse_args()
+for k, texto in PENDIENTE.items():
+    archivo = OUT / f"enlace_{k}.txt"
+    valor = getattr(args, k)
+    if valor:
+        archivo.write_text(valor + "\n", encoding="utf-8")
+    elif archivo.exists() and archivo.read_text(encoding="utf-8").strip():
+        valor = archivo.read_text(encoding="utf-8").strip()
+    setattr(args, k, valor or texto)
 
 
 def enlace(valor: str) -> str:
@@ -68,7 +78,8 @@ def figura_poster():
         if f2:
             a.axvspan(min(f2) - .5, max(f2) + .5, color="orange", alpha=.1)
         a.legend(fontsize=9)
-    ax[0].text(min(f2) if f2 else 1, ax[0].get_ylim()[1] * .92, " fine-tuning", color="darkorange", fontsize=10)
+    if f2:
+        ax[0].text(min(f2), ax[0].get_ylim()[1] * .92, " fine-tuning", color="darkorange", fontsize=10)
     c = np.array(cm)
     ax[2].imshow(c, cmap="Blues")
     for (i, j), v in np.ndenumerate(c):
@@ -153,7 +164,7 @@ th{{background:#eef2f8;color:#1d2f4f}}td:first-child,th:first-child{{text-align:
 <img src="{ruta_fig('13_poster_modelo_app.png')}" style="max-height:41mm"></div>
 <div class=row>
 <div class=card style="flex:1.3"><h2>Interpretabilidad: Grad-CAM</h2><img src="{ruta_fig('09_gradcam.png')}" style="max-height:40mm">
-<p class=note>En las {gc['n']} lesiones de prueba, {pct(gc['energia_media_en_lesion'])} del mapa de calor cae dentro de la lesión segmentada, que ocupa en promedio {pct(gc['area_media_lesion'])} de la imagen: <b>{num(gc['razon'], 1)}×</b> lo esperado si la red mirara al azar.</p></div>
+<p class=note>En las {gc['n']} lesiones de prueba, la lesión ocupa en promedio {pct(gc['area_media_lesion'])} de la imagen, pero concentra {' y '.join(f"<b>{num(v['razon'], 1)}×</b> ({k})" for k, v in m.get('gradcam_por_modelo', {m['modelo_app']: gc}).items())} más energía del mapa de calor de lo esperado al azar. El ViT reparte su atención de forma más global; en la app se puede alternar con EfficientNet-B0 para ver un mapa más localizado.</p></div>
 <div class=card style="flex:1"><h2>Conclusiones</h2><ul>{''.join(f'<li>{c}</li>' for c in CONCLUSIONES)}</ul></div>
 </div>
 <div class="card mb" style="columns:2;column-gap:6mm"><h2 style="column-span:all">Referencias (APA 7)</h2>
