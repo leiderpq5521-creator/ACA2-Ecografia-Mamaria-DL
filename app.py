@@ -84,9 +84,19 @@ def registrar(origen: str, contenido: bytes, clase: str, probs) -> None:
     """Guarda la predicción en SQLite una sola vez por imagen y sesión."""
     clave = hashlib.md5(contenido).hexdigest() + modelo_sel
     vistos = st.session_state.setdefault("registradas", set())
-    if clave not in vistos:
-        db.registrar_prediccion(con, origen, modelo_sel, clase, probs)
-        vistos.add(clave)
+    if clave in vistos:
+        return
+    global con
+    for intento in range(2):
+        try:
+            db.registrar_prediccion(con, origen, modelo_sel, clase, probs)
+            vistos.add(clave)
+            return
+        except sqlite3.Error:
+            # p. ej. tras un redespliegue que reemplazó busi.db: se descarta la conexión y se reintenta
+            conexion.clear()
+            con = conexion()
+    st.toast("No se pudo guardar esta predicción en el historial (la predicción sí es válida).", icon="⚠️")
 
 
 def grafico_probs(probs: np.ndarray, umbral: float):
