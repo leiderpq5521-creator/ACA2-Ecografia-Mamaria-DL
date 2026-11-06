@@ -53,7 +53,7 @@ filas = "".join(
     + f"</td><td>{num(v['accuracy'])}</td><td>{num(v['f1_macro'])}</td><td>{num(v['roc_auc_ovr'])}</td>"
     f"<td>{num(v['recall_maligno'])}</td></tr>" for k, v in R.items())
 
-ruta_fig = lambda f: (BASE / "figuras" / f).as_uri()
+ruta_fig = lambda f: f"../figuras/{f}"  # ruta relativa: funciona en cualquier equipo y en GitHub
 
 
 def figura_poster():
@@ -115,7 +115,7 @@ CONCLUSIONES = json.loads((OUT / "conclusiones.json").read_text(encoding="utf-8"
 
 html = f"""<!doctype html><html lang=es><head><meta charset=utf-8><title>Póster ACA 2 – Ecografía mamaria con Deep Learning</title><style>
 @page{{size:297mm 420mm;margin:0}}
-*{{box-sizing:border-box}}body{{margin:0;width:297mm;height:420mm;font-family:'Segoe UI','DejaVu Sans',sans-serif;color:#1d2433;background:#f4f6fa;font-size:9.1pt;overflow:hidden}}
+*{{box-sizing:border-box}}html{{background:#cfd6e0}}body{{margin:6mm auto;width:297mm;min-height:420mm;font-family:'Segoe UI','DejaVu Sans',sans-serif;color:#1d2433;background:#f4f6fa;font-size:9.1pt;box-shadow:0 2px 12px #0004}}@media print{{html{{background:none}}body{{margin:0;height:420mm;overflow:hidden;box-shadow:none}}}}
 header{{background:linear-gradient(135deg,#1d2f4f,#2E86AB);color:#fff;padding:6mm 10mm 4.5mm;display:flex;gap:6mm;align-items:center}}header .tit{{flex:1}}header .lk a{{color:#fff;text-decoration:underline}}header .lk{{width:78mm;background:#D1495B;border-radius:2.5mm;padding:2.5mm 3.5mm;font-size:8pt;line-height:1.35;word-break:break-all}}
 h1{{margin:0;font-size:20pt;line-height:1.12}}header p{{margin:2mm 0 0;font-size:9pt;opacity:.93}}
 .wrap{{padding:4mm 10mm}}.row{{display:flex;gap:4mm;margin-bottom:3mm}}.mb{{margin-bottom:3mm}}
@@ -158,7 +158,7 @@ th{{background:#eef2f8;color:#1d2f4f}}td:first-child,th:first-child{{text-align:
 <div class=kpi><span>{pct(app['recall_maligno'])}</span><small>Recall maligno</small></div><div class=kpi><span>{num(app['roc_auc_ovr'])}</span><small>ROC-AUC (OvR)</small></div></div>
 <table><tr><th>Modelo</th><th>Parám. (M)</th><th>Accuracy</th><th>F1 macro</th><th>ROC-AUC</th><th>Recall mal.</th></tr>{filas}</table>
 <p class=note style="margin-top:1.5mm">IC 95 % (bootstrap) de {m['modelo_app']}: accuracy {num(ic['accuracy'][0])}–{num(ic['accuracy'][1])} · F1 macro {num(ic['f1_macro'][0])}–{num(ic['f1_macro'][1])} · recall maligno {num(ic['recall_maligno'][0])}–{num(ic['recall_maligno'][1])}. Por clase (F1): normal {num(pc['normal']['f1'])} · benigno {num(pc['benigno']['f1'])} · maligno {num(pc['maligno']['f1'])}.</p></div>
-<div class=card><h2>Vista previa de la app Streamlit</h2>{f'<img src="{preview.as_uri()}" style="max-height:56mm">' if preview.exists() else '<p>(captura pendiente)</p>'}</div>
+<div class=card><h2>Vista previa de la app Streamlit</h2>{f'<img src="../figuras/{preview.name}" style="max-height:56mm">' if preview.exists() else '<p>(captura pendiente)</p>'}</div>
 </div>
 <div class="card mb"><h2>{m['modelo_app']}: curvas de entrenamiento/validación y matriz de confusión</h2>
 <img src="{ruta_fig('13_poster_modelo_app.png')}" style="max-height:41mm"></div>
